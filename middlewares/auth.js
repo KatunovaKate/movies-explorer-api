@@ -1,4 +1,4 @@
-const { JWT_SECRET } = process.env;
+const { JWT_SECRET = 'default-JWT-secret' } = process.env;
 const jwt = require('jsonwebtoken');
 const NotAccessError = require('../errors/not-access-err');
 

@@ -1,4 +1,4 @@
-const { JWT_SECRET } = process.env;
+const { JWT_SECRET = 'default-JWT-secret' } = process.env;
 const SALT_ROUNDS = 10;
 
 const bcrypt = require('bcrypt');
@@ -31,8 +31,9 @@ module.exports.createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new BadRequestError('Переданы неверные данные'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -57,9 +58,6 @@ module.exports.login = (req, res, next) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new BadRequestError('Переданы неверные данные'));
       }
-      if (err.name === 'ReferenceError') {
-        next(new NotFoundError('Страница не найдена'));
-      }
       next(err);
     });
 };
@@ -71,7 +69,7 @@ module.exports.getCurrentUser = (req, res, next) => {
     })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы неверные данные'));
       }
       next(err);
@@ -81,8 +79,17 @@ module.exports.getCurrentUser = (req, res, next) => {
 module.exports.updateUserInfo = (req, res, next) => {
   const { name, email } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { name, email }, { new: true, runValidators: true })
-    .then((user) => res.send({ data: user }))
+  User.findOne({ email })
+    .then((user) => {
+      if (!user || req.user._id === user._id.toString()) {
+        return User.findByIdAndUpdate(
+          req.user._id,
+          { name, email },
+          { new: true, runValidators: true },
+        ).then((data) => res.send({ data }));
+      }
+      throw new ConflictError('Пользователь с таким email уже существует');
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы неверные данные'));
