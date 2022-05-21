@@ -1,7 +1,7 @@
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 
-const authValidation = celebrate({
+const registerValidation = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().min(2).custom((value, helper) => {
       if (!validator.isEmail(value)) {
@@ -25,6 +25,27 @@ const authValidation = celebrate({
         'string.min': 'Имя не должно быть меньше 2ух символов',
         'string.max': 'Имя не должно быть больше 30ти символов',
       }),
+  }),
+});
+
+const loginValidation = celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().min(2).custom((value, helper) => {
+      if (!validator.isEmail(value)) {
+        return helper.error('string.email');
+      }
+      return value;
+    })
+      .messages({
+        'any.required': 'Е-майл обязателен',
+        'string.empty': 'Е-майл обязателен',
+      }),
+    password: Joi.string().required()
+      .messages({
+        'any.required': 'Пароль обязателен',
+        'string.empty': 'Пароль обязателен',
+      }),
+    name: Joi.string(),
   }),
 });
 
@@ -123,7 +144,8 @@ const validateMovie = celebrate({
 });
 
 module.exports = {
-  authValidation,
+  registerValidation,
+  loginValidation,
   validateUpdateUserInfo,
   validateMovieId,
   validateMovie,

@@ -1,7 +1,8 @@
 const allowedCors = [
   'https://movies-katunova.nomoredomains.xyz',
   'http:/movies-katunova.nomoredomains.xyz',
-  'localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3000',
 ];
 
 function cors(req, res, next) {
