@@ -6,9 +6,9 @@ const ForbiddenError = require('../errors/forbidden-err');
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({ owner: req.user._id })
-    .orFail(() => {
-      throw new NotFoundError('Пользователь еще не добавил ни одного фильма');
-    })
+    // .orFail(() => {
+    //   throw new NotFoundError('Пользователь еще не добавил ни одного фильма');
+    // })
     .then((movie) => res.send({ data: movie }))
     .catch(next);
 };
